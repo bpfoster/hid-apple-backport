@@ -21,7 +21,7 @@ This causes the `Fn` key to be completely disabled, and therefore cannot use it 
 Why is `hid-generic` binding to the device when there is `hid-apple`?  Device drivers register the idVendor/idProduct tuples that they support.  This is a relatively new keyboard, and support for this ProductID was [added in Kernel 4.19](https://github.com/torvalds/linux/commit/ee345492437043a79db058a3d4f029ebcb52089a) (CentOS 7 ships with Kernel 3.10).
 
 
-Literally, all the driver needs is to add the idVendor/idProduct tuple (in this case 0x05AC/0x026C).
+Literally, all the driver needs is to add the idVendor/idProduct tuple (in this case `0x05AC`/`0x026C`).
 
 
 Because the hid and hid-apple drivers are builtin to the kernel, I cannot just backport the changes and replace the .ko file.
@@ -38,7 +38,7 @@ Kernel module related files can be found in the `kernel/` directory.
 Great, so now we have a functional driver for this keyboard, but it's still binding to `hid-generic`.  Despite the code programmatically registering its supported device tables (which might make you think this is all dynamic), prior to Kernel 4.16, all these device IDs had to coded in to `hid-core.c` as having special drivers so that `hid-generic` wouldn't handle it!  [See this post for more](https://stackoverflow.com/questions/3389192/register-bind-match-a-device-with-a-driver/54299197#54299197).
 
 
-How do we then get `hid-apple2` to handle the keyboard?  Well, we add a udev rule that fires when a device with this idVendor/idProduct tuple is added.  It unbinds the device from `hid-generic`,, and binds to `hid-apple2`.  See the `udev/` folder for the actual rule.
+How do we then get `hid-apple2` to handle the keyboard?  Well, we add a udev rule that fires when a device with this idVendor/idProduct tuple is added.  It unbinds the device from `hid-generic`, and binds to `hid-apple2`.  See the `udev/` folder for the actual rule.
 
 
 Everything's perfect now.  A slight annoyance is that the `hid-apple` driver sets the function keys to be the multimedia keys by default.  I want that switched, so we set the `fnmode` [option to 2](https://github.com/torvalds/linux/blob/v3.10/drivers/hid/hid-apple.c#L40).  To make this persist across reboots, a modprobe rule is added - see the `modprobe/` directory.
