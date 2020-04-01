@@ -1,8 +1,8 @@
 
-==Overview==
+## Overview
 This gets my Apple Magic Keyboard fully functional in CentOS 7.
 
-==Problem Description==
+## Problem Description
 Upon plugging in the keyboard, it is bound to the hid-generic driver.
 ```
 [  127.735562] usb 3-1.6: new full-speed USB device number 6 using xhci_hcd
@@ -27,7 +27,7 @@ Literally, all the driver needs is to add the idVendor/idProduct tuple (in this 
 Because the hid and hid-apple drivers are builtin to the kernel, I cannot just backport the changes and replace the .ko file.
 
 
-==Solution==
+## Solution
 So, I copied `hid-apple.c` to `hid-apple2.c`, removed all the existing devices from the table and added in the new one that I need.  We can then compile this to a new `hid-apple2` driver, which functions properly for this keyboard.
 
 We build and insert the driver with DKMS so that future kernel updates will cause the custom module to be rebuilt.
@@ -44,7 +44,7 @@ How do we then get `hid-apple2` to handle the keyboard?  Well, we add a udev rul
 Everything's perfect now.  A slight annoyance is that the `hid-apple` driver sets the function keys to be the multimedia keys by default.  I want that switched, so we set the `fnmode` [option to 2](https://github.com/torvalds/linux/blob/v3.10/drivers/hid/hid-apple.c#L40).  To make this persist across reboots, a modprobe rule is added - see the `modprobe/` directory.
 
 
-==Misc==
+## Misc
 This seems like an overly complicated solution to a trivial problem.  I'm probably missing something stupid simple.
 
 I found references to the `new_id` sysfs, which makes it sound like we could just register the device with `hid-apple` like so:
