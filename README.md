@@ -47,7 +47,7 @@ Everything's perfect now.  A slight annoyance is that the `hid-apple` driver set
 ## Misc
 This seems like an overly complicated solution to a trivial problem.  I'm probably missing something stupid simple.
 
-I found references to the `new_id` sysfs, which makes it sound like we could just register the device with `hid-apple` like so:
+I found references to the `new_id` [sysfs](https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-bus-usb), which makes it sound like we could just register the device with `hid-apple` like so:
 ```
 echo "05ac 026c 0 05ac 0220" | sudo tee /sys/bus/hid/drivers/apple/new_id
 ```
